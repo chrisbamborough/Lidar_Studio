@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>LiDAR Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="three" aria-label="LiDAR Studio canvas"></canvas>
+      <video id="video" playsinline autoplay muted></video>
+
+      <aside id="controls" aria-label="LiDAR Studio controls">
+        <header class="panel-header">
+          <div>
+            <h1>LiDAR Studio</h1>
+            <p id="sourceLabel">Demo source</p>
+          </div>
+          <output id="status">Demo</output>
+        </header>
+
+        <section class="control-section">
+          <h2>Source</h2>
+          <label class="field">
+            <span>Record3D URL</span>
+            <input id="addr" autocomplete="off" placeholder="http://device-ip" />
+          </label>
+          <div class="button-row">
+            <button id="connect" type="button">Connect</button>
+            <button id="demo" type="button">Demo</button>
+            <button id="stop" type="button">Stop</button>
+          </div>
+          <label class="check-row">
+            <input id="useProxy" type="checkbox" />
+            <span>Use /webrtc proxy</span>
+          </label>
+          <output id="error"></output>
+        </section>
+
+        <section class="control-section">
+          <h2>Render</h2>
+          <label class="field">
+            <span>Mode</span>
+            <select id="renderMode">
+              <option value="hybrid">Points + Trails</option>
+              <option value="points">Points</option>
+              <option value="trails">Trails</option>
+            </select>
+          </label>
+          <label class="control-grid">
+            <span>Density</span>
+            <input id="step" type="range" min="1" max="18" step="1" value="4" />
+            <output id="stepOut">4</output>
+          </label>
+          <label class="control-grid">
+            <span>Depth</span>
+            <input id="depthRange" type="range" min="0.5" max="10" step="0.1" value="3" />
+            <output id="depthRangeOut">3.0 m</output>
+          </label>
+          <label class="control-grid">
+            <span>Near clip</span>
+            <input id="nearClip" type="range" min="0" max="3" step="0.01" value="0.02" />
+            <output id="nearClipOut">0.02 m</output>
+          </label>
+          <label class="control-grid">
+            <span>Far clip</span>
+            <input id="farClip" type="range" min="0.5" max="12" step="0.1" value="4" />
+            <output id="farClipOut">4.0 m</output>
+          </label>
+          <label class="control-grid">
+            <span>Spread</span>
+            <input id="spread" type="range" min="0.3" max="2.5" step="0.01" value="1" />
+            <output id="spreadOut">1.00</output>
+          </label>
+          <label class="field">
+            <span>Orientation</span>
+            <select id="orientation">
+              <option value="camera">Camera</option>
+              <option value="stage">Stage</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="control-section">
+          <h2>Look</h2>
+          <label class="field">
+            <span>Color mode</span>
+            <select id="colorMode">
+              <option value="camera">Camera</option>
+              <option value="depth">Depth</option>
+              <option value="height">Height</option>
+              <option value="rainbow">Rainbow</option>
+              <option value="mono">Mono</option>
+            </select>
+          </label>
+          <div class="swatches">
+            <label>
+              <span>Near</span>
+              <input id="nearColor" type="color" value="#ff9d00" />
+            </label>
+            <label>
+              <span>Far</span>
+              <input id="farColor" type="color" value="#2e8cff" />
+            </label>
+            <label>
+              <span>Tint</span>
+              <input id="tintColor" type="color" value="#ffffff" />
+            </label>
+          </div>
+          <label class="control-grid">
+            <span>Point size</span>
+            <input id="pointSize" type="range" min="0.002" max="0.09" step="0.001" value="0.012" />
+            <output id="pointSizeOut">0.012</output>
+          </label>
+          <label class="control-grid">
+            <span>Opacity</span>
+            <input id="opacity" type="range" min="0.1" max="1" step="0.01" value="0.95" />
+            <output id="opacityOut">0.95</output>
+          </label>
+          <label class="control-grid">
+            <span>Brightness</span>
+            <input id="brightness" type="range" min="0.2" max="2.5" step="0.01" value="1" />
+            <output id="brightnessOut">1.00</output>
+          </label>
+          <label class="check-row">
+            <input id="additive" type="checkbox" checked />
+            <span>Additive blend</span>
+          </label>
+        </section>
+
+        <section class="control-section">
+          <h2>Agents</h2>
+          <label class="control-grid">
+            <span>Count</span>
+            <input id="trailAgents" type="range" min="32" max="2400" step="32" value="640" />
+            <output id="trailAgentsOut">640</output>
+          </label>
+          <label class="control-grid">
+            <span>Birth</span>
+            <input id="trailBirthRate" type="range" min="0" max="900" step="10" value="240" />
+            <output id="trailBirthRateOut">240/s</output>
+          </label>
+          <label class="control-grid">
+            <span>Life</span>
+            <input id="trailLife" type="range" min="0.2" max="8" step="0.1" value="2.8" />
+            <output id="trailLifeOut">2.8 s</output>
+          </label>
+          <label class="control-grid">
+            <span>Flow</span>
+            <input id="trailFlow" type="range" min="0" max="8" step="0.05" value="2.1" />
+            <output id="trailFlowOut">2.10</output>
+          </label>
+          <label class="control-grid">
+            <span>Speed</span>
+            <input id="trailSpeed" type="range" min="0.05" max="3" step="0.05" value="0.9" />
+            <output id="trailSpeedOut">0.90</output>
+          </label>
+          <label class="control-grid">
+            <span>Memory</span>
+            <input id="trailMemory" type="range" min="1000" max="24000" step="500" value="9000" />
+            <output id="trailMemoryOut">9000</output>
+          </label>
+          <label class="control-grid">
+            <span>Glow</span>
+            <input id="trailOpacity" type="range" min="0.05" max="1" step="0.01" value="0.62" />
+            <output id="trailOpacityOut">0.62</output>
+          </label>
+        </section>
+
+        <section class="control-section">
+          <h2>Motion</h2>
+          <label class="control-grid">
+            <span>Twist</span>
+            <input id="twist" type="range" min="-4" max="4" step="0.05" value="0" />
+            <output id="twistOut">0.00</output>
+          </label>
+          <label class="control-grid">
+            <span>Wave</span>
+            <input id="wave" type="range" min="0" max="1.5" step="0.01" value="0" />
+            <output id="waveOut">0.00</output>
+          </label>
+          <label class="control-grid">
+            <span>Spin</span>
+            <input id="spin" type="range" min="-1" max="1" step="0.01" value="0" />
+            <output id="spinOut">0.00</output>
+          </label>
+          <div class="button-row two">
+            <button id="resetView" class="secondary" type="button">Reset view</button>
+            <button id="resetControls" class="secondary" type="button">Reset values</button>
+          </div>
+        </section>
+      </aside>
+
+      <footer id="readout">
+        <span id="fps">0 FPS</span>
+        <span id="points">0 points</span>
+        <span id="trails">0 trails</span>
+        <span id="frameSize">0 x 0</span>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
